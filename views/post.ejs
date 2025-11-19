@@ -1,0 +1,15 @@
+<%- include(`partials/header`)%>
+
+<h2><%= post.title %></h2>
+
+<p><small>Posted on <%= new Date(post.createdAt).toLocaleDateString() %></small></p>
+
+<div class="card">
+  <%- post.content %>
+</div>
+
+<br>
+<a href="/edit/<%= post.id %> " class="btn">Edit</a>
+<a href="/" class="btn" style="background: #95a5a6;">Back to Home</a>
+
+<%- include(`partials/footer`) %>

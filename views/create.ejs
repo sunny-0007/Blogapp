@@ -1,0 +1,40 @@
+<%- include(`partials/header` )%>
+
+<h2> Create new Post</h2>
+
+<div class="card">
+  <form action="/create" method="POST">
+    
+    <!-- Title -->
+    <div class="input-group">
+      <label for="title">Post Title</label>
+      <input 
+        type="text" 
+        name="title" 
+        id="title" 
+        placeholder="Enter a catchy title..." 
+        required 
+      />
+    </div>
+
+    <!-- Content -->
+    <div class="input-group">
+      <label for="content">Post Content (HTML allowed)</label>
+      <textarea 
+        name="content" 
+        id="content" 
+        placeholder="Write your story... supports &lt;strong&gt;, &lt;em&gt;, &lt;p&gt;, etc." 
+        required
+      ></textarea>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="post-btn" >Publish Post</button>
+  </form>
+</div>
+
+<p class="text-center" style="margin-top: 1rem;">
+  <a href="/">Back to Home</a>
+</p>
+
+<%- include(`partials/footer`)%>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+ <link rel="stylesheet" href="/style.css"> 
+ 
+</head>
+<body>
+  <header>
+    <h1>My Ejs Blog</h1>
+    <nav>
+      <a href="/">Home</a>
+      <% if(user){ %>
+      <a href="/create">+New Post</a>
+      <span>Hello, <%= user.name %>!</span>
+      <a href="/logout">Logout</a>
+      <% } else { %>
+      <a href="/login">Login</a>
+      <% } %>
+    </nav>
+  </header>
+  
+</body>
+</html>

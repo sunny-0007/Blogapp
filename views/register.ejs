@@ -1,0 +1,45 @@
+<%- include(`partials/header`) %>
+
+<h2 class="text-center">Create your account</h2>
+
+<div class="card" style="max-width: 400px; margin: 2rem auto; padding: 2rem">
+  <form action="/register" method="POST">
+    <div class="input-group">
+      <label for="name">Full Name</label>
+      <input
+        type="text"
+        name="name"
+        id="name"
+        placeholder="John deo"
+        required
+      />
+    </div>
+    <div class="input-group">
+      <label for="email">Email</label>
+      <input
+        type="email"
+        name="email"
+        id="email"
+        placeholder="john@example.com"
+        required
+      />
+    </div>
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input
+        type="password"
+        name="password"
+        id="password"
+        placeholder="********"
+        required
+      />
+    </div>
+  
+      <button type="submit" class="btn" style="max-width: 100%;">Register</button>
+  
+  </form>
+
+  <p class="text-center" style="margin-top: 1rem">
+    Already have an account? <a href="/login"> Login </a>
+  </p>
+</div>
