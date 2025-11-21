@@ -9,7 +9,10 @@
 </div>
 
 <br>
-<a href="/edit/<%= post.id %> " class="btn">Edit</a>
-<a href="/" class="btn" style="background: #95a5a6;">Back to Home</a>
+<div style="display: flex; justify-content:flex-start;">
+<a href="/edit/<%= post.id %>"  class="btn" style="margin: 1rem;" >Edit</a>
+<a href="/" class="btn" style="background: #95a5a6;margin: 1rem;">Back to Home</a>
+</div>
+
 
 <%- include(`partials/footer`) %>

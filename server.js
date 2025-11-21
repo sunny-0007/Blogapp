@@ -49,9 +49,31 @@ app.use(setUser);
 // Routes
 
 // Home - list posts
-app.get("/", async (req, res) => {
-  const posts = await Post.find().sort({ createdAt: -1});
-  res.render("index", { posts });
+// app.get("/", async (req, res) => {
+//   const posts = await Post.find({author:req.session.user._id}).sort({ createdAt: -1});
+//   res.render("index", { posts, user:req.session.user});
+// });
+
+// HOME PAGE – SMART ROUTE (this replaces your old app.get('/'))
+app.get('/', async (req, res) => {
+  if (req.session.user) {
+    // USER IS LOGGED IN → show only THEIR posts
+    const posts = await Post.find({ author: req.session.user._id })
+                           .sort({ createdAt: -1 });
+    res.render('index', { 
+      posts, 
+      user: req.session.user,
+      isLoggedIn: true 
+    });
+
+  } else {
+    // NOT LOGGED IN → show beautiful public landing page with demo content
+    res.render('index', { 
+      posts: [],           // no real posts
+      user: null,
+      isLoggedIn: false 
+    });
+  }
 });
 
 // Show create form
@@ -74,7 +96,7 @@ app.post("/create", requireLogin, async (req, res) => {
 // View single post
 app.get("/post/:id",requireLogin, async(req, res) => {
   
-  const post = await Post.findById(req.params.id);
+  const post = await Post.findOne({ _id:req.params.id, author: req.session.user._id });
   if (!post) return res.status(404).send("Post Not Found");
   res.render("post", { post });
 });
@@ -82,20 +104,20 @@ app.get("/post/:id",requireLogin, async(req, res) => {
 // Edit form
 app.get("/edit/:id",requireLogin, async (req, res) => {
  
-  const post = await Post.findById(req.params.id);
+  const post = await Post.findById( { _id:req.params.id, author:req.session.user._id });
   if (!post) return res.status(404).send("Post Not Found");
   res.render("edit", { post });
 });
 
 // Handle edit (FIXED variable errors)
 app.post("/edit/:id",requireLogin,  async(req,res) =>{
-  await Post.findByIdAndUpdate(req.params.id, req.body);
+  await Post.findByIdAndUpdate({_id:req.params.id, author:req.session.user._id });
   res.redirect(`/post/${req.params.id}`);
 })
 
 // Delete post (FIXED variable name)
 app.post("/delete/:id", requireLogin, async(req, res) => {
-  await Post.findByIdAndDelete(req.params.id);
+  await Post.findByIdAndDelete({_id:req.params.id, author:req.session.user._id});
   res.redirect("/");
 });
 
@@ -106,39 +128,57 @@ app.get("/login", (req,res) =>{
   res.render("login");
 });
 
-app.post("/login", async(req,res) =>{
-  const {email, password} =req.body;
-  const user = await User.findOne({ email, password});
-  if(user){
-    req.session.user = {
-      id: user._id,
-      name: user.name
-    };
-   return res.redirect("/");
+
+
+// POST /login – THIS IS THE FIX
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    // If user not found OR password wrong
+    if (!user || user.password !== password) {
+      return res.render('login', { 
+        error: 'Invalid email or password' 
+      });
+    }
+
+    // SUCCESS → Create session and redirect
+    req.session.regenerate((err) => {
+      if (err) return res.redirect('/login');
+
+      req.session.user = user;           // ← This logs the user in
+      req.session.save((err) => {        // ← Force save session
+        if (err) return res.redirect('/login');
+        res.redirect('/');               // ← THIS IS THE KEY LINE
+      });
+    });
+
+  } catch (err) {
+    res.render('login', { error: 'Something went wrong' });
   }
-    res.send("Invalid Credentials");
-  }
-);
+});
 
 //Register page
-app.get("/register", (req,res) =>{
+app.get("/register",async (req,res) =>{
   if(req.session.user) return res.redirect("/");
   res.render("register");
 });
 
-app.post("/register", async(req,res) =>{
-  const {name, email, password} = req.body;
-  try{
-    const user = await User.create(req.body);
-    req.session.user = {
-      id:user._id,
-      name : user.name
-    };
-    res.redirect("/");
-  }catch(err){
-    res.send("Email already exit try with different email");
+app.post("/register", async (req, res) => {
+  try {
+      const user = await User.create(req.body);
+      
+      // FIX: store full user object (same as login)
+      req.session.user = user;
+
+      res.redirect("/");
+  } catch (err) {
+    res.send("Email already exists, try a different email");
   }
 });
+
 
 
 

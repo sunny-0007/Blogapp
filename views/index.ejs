@@ -1,70 +1,106 @@
 <%- include('partials/header') %>
 
-<!-- MAIN CONTENT - SHOW TO EVERYONE -->
+<!-- ────────────────────── LOGGED IN USER ────────────────────── -->
+<% if (user) { %>
 
+  <div class="container" style="margin-top: 0.5rem;">
+    <h2 class="section-title text-center">My Posts</h2>
 
-<% if (posts.length === 0) { %>
-  <!-- EMPTY STATE - Shown to BOTH guests AND logged-in users with no posts -->
-  <div class="empty-state-container">
-    <div class="empty-state-box">
-      <h1>Create Your First Post</h1>
-      <p>Start sharing your thoughts with the new world</p>
-    </div>
-    <div class="empty-state-button">
-      <% if (user) { %>
-        <!-- Logged in → can create post -->
-        <a href="/create" class="btn btn-lg">Create One</a>
-      <% } else { %>
-        <!-- Not logged in → show login button -->
-        <a href="/login" class="btn btn-lg">Login to Start Writing</a>
-      <% } %>
+    <% if (posts.length === 0) { %>
+      <!-- Empty state for logged-in user with no posts -->
+      <div class="empty-state">
+        <div class="empty-icon">Pen</div>
+        <h3>You haven't written anything yet</h3>
+        <p>Start sharing your ideas with the world!</p>
+        <a href="/create" class="btn btn-primary btn-lg">Write Your First Post</a>
+      </div>
+
+    <% } else { %>
+      <!-- Real user posts only -->
+      <div class="posts-grid">
+        <% posts.forEach(post => { %>
+          <article class="post-card-modern">
+            <div class="post-card-header">
+              <h3 class="post-card-title">
+                <a href="/post/<%= post._id %>"><%= post.title %></a>
+              </h3>
+              <div class="post-author-badge">by <%= user.name %></div>
+            </div>
+
+            <div class="post-card-meta">
+              <span class="date">
+                <%= new Date(post.createdAt).toLocaleDateString('en-US', { 
+                  month: 'long', day: 'numeric', year: 'numeric' 
+                }) %>
+              </span>
+            </div>
+
+            <p class="post-card-excerpt">
+              <%- post.content.replace(/<[^>]*>/g, '').substring(0, 130) %>...
+            </p>
+
+            <div class="post-card-footer">
+              <a href="/post/<%= post._id %>" class="read-more">Read More</a>
+              <div class="post-actions">
+                <a href="/edit/<%= post._id %>" class="action-btn">Edit</a>
+                <form action="/delete/<%= post._id %>" method="POST" style="display:inline;">
+                  <button type="submit" class="action-btn danger"
+                          onclick="return confirm('Delete this post?')">
+                    Delete
+                  </button>
+                </form>
+              </div>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+
+<!-- ────────────────────── GUEST (NOT LOGGED IN) ────────────────────── -->
+<% } else { %>
+
+  <!-- Beautiful landing page for visitors -->
+  <div class="hero-section">
+    <h1 class="hero-title">Welcome to <span class="highlight">MyBlog</span></h1>
+    <p class="hero-subtitle">A beautiful place to write, share, and inspire</p>
+    <div class="hero-buttons">
+      <a href="/register" class="btn btn-primary btn-lg">Start Writing Free</a>
+      <a href="/login" class="btn btn-outline btn-lg">Login</a>
     </div>
   </div>
 
-<% } else { %>
-  <!-- POST LIST - Only show if there are posts AND user is logged in -->
-  <% if (user) { %>
-    <h2 class="page-title">All Posts</h2>
-    <% posts.forEach(post => { %>
-      <div class="card">
-        <h3>
-          <a href="/post/<%= post._id %>" style="color: #2c3e50; text-decoration: none;">
-            <%= post.title %>
-          </a>
-        </h3>
-        <p>
-          <small>
-            <%= new Date(post.createdAt).toLocaleDateString('en-US', {
-              year: 'numeric', month: 'long', day: 'numeric'
-            }) %>
-          </small>
-        </p>
-        <div>
-          <%- post.content.substring(0, 150) %>...
-          <a href="/post/<%= post._id %>">Read More</a>
-        </div>
-        <br />
-        <a href="/edit/<%= post._id %>" class="btn">Edit</a>
-        <form action="/delete/<%= post._id %>" method="POST" style="display: inline;">
-          <button type="submit" class="btn danger"
-                  onclick="return confirm('Delete this post?')">
-            Delete
-          </button>
-        </form>
-      </div>
-    <% }); %>
-  <% } else { %>
-    <!-- User is logged out BUT there ARE posts → hide them, show empty state -->
-    <div class="empty-state-container">
-      <div class="empty-state-box">
-        <h1>Create Your First Post</h1>
-        <p>Start sharing your thoughts with the new world</p>
-      </div>
-      <div class="empty-state-button">
-        <a href="/login" class="btn btn-lg">Login to View & Create Posts</a>
-      </div>
+  <div class="container">
+    <h2 class="section-title text-center">Latest Stories</h2>
+    <p class="text-center" style="color:#7f8c8d; margin-bottom: 3rem;">
+      Join thousands of writers sharing their ideas every day
+    </p>
+
+    <!-- Demo posts (fake content) – only visible to guests -->
+    <div class="posts-grid">
+      <article class="post-card-modern">
+        <div class="post-card-header"><h3 class="post-card-title">How I Built My First App in 30 Days</h3><div class="post-author-badge">by Sarah Chen</div></div>
+        <div class="post-card-meta"><span class="date">April 10, 2025</span></div>
+        <p class="post-card-excerpt">From zero to launch: my journey learning React, Node.js, and deploying my first full-stack app...</p>
+        <div class="post-card-footer"><a href="#" class="read-more">Read Story</a></div>
+      </article>
+
+      <article class="post-card-modern">
+        <div class="post-card-header"><h3 class="post-card-title">The Morning Routine That Changed My Life</h3><div class="post-author-badge">by James Park</div></div>
+        <div class="post-card-meta"><span class="date">April 8, 2025</span></div>
+        <p class="post-card-excerpt">Wake up at 5 AM, meditate, exercise, and journal — here's why this simple routine transformed my productivity...</p>
+        <div class="post-card-footer"><a href="#" class="read-more">Read Story</a></div>
+      </article>
+
+      <article class="post-card-modern">
+        <div class="post-card-header"><h3 class="post-card-title">Why I Quit My Job to Travel the World</h3><div class="post-author-badge">by Emma Wilson</div></div>
+        <div class="post-card-meta"><span class="date">April 5, 2025</span></div>
+        <p class="post-card-excerpt">After 8 years in corporate, I sold everything and bought a one-way ticket. This is what I learned...</p>
+        <div class="post-card-footer"><a href="#" class="read-more">Read Story</a></div>
+      </article>
     </div>
-  <% } %>
+  </div>
+
 <% } %>
 
 <%- include('partials/footer') %>
